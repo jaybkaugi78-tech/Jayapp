@@ -3,7 +3,7 @@ function Footer() {
     <footer className="bg-blue-950 text-white mt-10">
       <div className="max-w-7xl mx-auto py-8 text-center">
 
-        <h2 className="text-3xl font-bold">
+        <h2 className="text-3xl font-bold text-yellow-400">
   Kaugi Academy
 </h2>
 

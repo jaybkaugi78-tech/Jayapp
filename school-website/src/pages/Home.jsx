@@ -8,7 +8,11 @@ function Home() {
           backgroundImage:
             "url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=80')",
         }}
-      >
+      ><div className="bg-yellow-400 text-black py-3 overflow-hidden">
+  <marquee>
+    Admissions Open • Science Fair Next Month • Sports Day Registration Ongoing • New Computer Lab Launching Soon
+  </marquee>
+</div>
         <div className="bg-black/60 p-10 rounded-xl text-center text-white max-w-4xl">
 
           <h1 className="text-6xl font-bold mb-6">
@@ -85,6 +89,38 @@ function Home() {
             environment prepares students to thrive in a rapidly changing
             world while upholding strong values and discipline.
           </p>
+        <section className="py-20 bg-white">
+
+  <h2 className="text-4xl font-bold text-center mb-12">
+    What Parents Say
+  </h2>
+
+  <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+
+    <div className="shadow-lg p-6 rounded-xl">
+      ⭐⭐⭐⭐⭐
+      <p className="mt-4">
+        Kaugi Academy has transformed my child's academic journey.
+      </p>
+    </div>
+
+    <div className="shadow-lg p-6 rounded-xl">
+      ⭐⭐⭐⭐⭐
+      <p className="mt-4">
+        Excellent teachers and a supportive environment.
+      </p>
+    </div>
+
+    <div className="shadow-lg p-6 rounded-xl">
+      ⭐⭐⭐⭐⭐
+      <p className="mt-4">
+        Outstanding academic and extracurricular programs.
+      </p>
+    </div>
+
+  </div>
+
+</section>
 
         </div>
       </section>
