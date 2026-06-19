@@ -1,698 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AutoDrive — Buy & Sell Cars</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0d0d0d; --surface: #161616; --card: #1c1c1c; --border: #2a2a2a;
-      --accent: #d90ed6; --accent2: #ff5c3a; --text: #f0f0f0; --muted: #888;
-      --font-display: 'Bebas Neue', sans-serif; --font-body: 'DM Sans', sans-serif;
-    }
-    body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jay & Millie 💜</title>
+<style>
+  :root {
+    --purple-light: #EEEDFE;
+    --purple-mid: #AFA9EC;
+    --purple-dark: #3C3489;
+    --pink-light: #FBEAF0;
+    --pink-mid: #ED93B1;
+    --pink-dark: #72243E;
+    --bg: #f8f7fc;
+    --card: #ffffff;
+    --border: #e8e5f0;
+    --text: #1a1a2e;
+    --muted: #7a7a9a;
+    --success: #1D9E75;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 48px; border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; background: rgba(13,13,13,0.92);
-      backdrop-filter: blur(12px); z-index: 100;
-    }
-    .logo { font-family: var(--font-display); font-size: 2rem; letter-spacing: 2px; color: var(--accent); }
-    .logo span { color: var(--text); }
-    .nav-links { display: flex; gap: 32px; }
-    .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); }
-    .btn-nav { background: var(--accent); color: #0d0d0d; border: none; padding: 10px 22px; font-family: var(--font-body); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s, transform 0.15s; }
-    .btn-nav:hover { background: #d4eb2a; transform: translateY(-1px); }
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;
+  }
+  .login-card {
+    background: var(--card); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 360px;
+    border: 1px solid var(--border); text-align: center;
+  }
+  .login-avatars { display: flex; justify-content: center; margin-bottom: 1.25rem; }
+  .login-av { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; border: 3px solid var(--bg); }
+  .login-av-j { background: var(--purple-light); color: var(--purple-dark); }
+  .login-av-m { background: var(--pink-light); color: var(--pink-dark); margin-left: -14px; }
+  .login-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+  .login-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem; }
+  .login-btn { padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .login-btn:hover { opacity: 0.8; }
+  .login-btn-j { background: var(--purple-light); color: var(--purple-dark); border-color: var(--purple-mid); }
+  .login-btn-m { background: var(--pink-light); color: var(--pink-dark); border-color: var(--pink-mid); }
+  .pin-row { display: none; flex-direction: column; gap: 8px; }
+  .pin-row.show { display: flex; }
+  .pin-row input { padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--border); font-size: 15px; text-align: center; letter-spacing: 4px; outline: none; }
+  .pin-row input:focus { border-color: var(--purple-mid); }
+  .pin-confirm { padding: 10px; border-radius: 10px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .pin-confirm-j { background: var(--purple-dark); color: #fff; }
+  .pin-confirm-m { background: var(--pink-dark); color: #fff; }
+  .pin-error { font-size: 12px; color: #E24B4A; display: none; }
 
-    .hero {
-      padding: 80px 48px 60px; display: flex; align-items: flex-end;
-      justify-content: space-between; border-bottom: 1px solid var(--border);
-      position: relative; overflow: hidden;
-    }
-    .hero::before {
-      content: 'AUTODRIVE'; position: absolute; font-family: var(--font-display);
-      font-size: 22vw; color: rgba(255,255,255,0.02); top: 50%; left: 50%;
-      transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; letter-spacing: 8px;
-    }
-    .hero-left h1 { font-family: var(--font-display); font-size: clamp(3.5rem, 8vw, 7rem); line-height: 0.9; letter-spacing: 2px; }
-    .hero-left h1 span { color: var(--accent); }
-    .hero-left p { margin-top: 20px; color: var(--muted); font-size: 1rem; max-width: 420px; line-height: 1.6; }
-    .hero-stats { display: flex; gap: 40px; text-align: right; }
-    .stat-num { font-family: var(--font-display); font-size: 2.8rem; color: var(--accent); line-height: 1; }
-    .stat-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+  /* APP */
+  #app { display: none; max-width: 480px; margin: 0 auto; padding: 0 0 80px; }
+  .app-header {
+    background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .h-avatars { display: flex; }
+  .h-av { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; border: 2px solid var(--card); }
+  .h-av-j { background: var(--purple-light); color: var(--purple-dark); }
+  .h-av-m { background: var(--pink-light); color: var(--pink-dark); margin-left: -8px; }
+  .h-title { font-size: 15px; font-weight: 600; }
+  .h-sub { font-size: 11px; color: var(--muted); }
+  .logout-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .logout-btn:hover { background: var(--bg); }
 
-    .filters {
-      display: flex; align-items: center; gap: 12px;
-      padding: 24px 48px; border-bottom: 1px solid var(--border); flex-wrap: wrap;
-    }
-    .filter-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-right: 8px; }
-    .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 8px 18px; font-family: var(--font-body); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
-    .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); }
-    .filter-btn.active { background: rgba(232,255,60,0.06); }
+  .tabs-bar {
+    display: flex; background: var(--card); border-bottom: 1px solid var(--border);
+    position: sticky; top: 63px; z-index: 9;
+  }
+  .tab-btn { flex: 1; padding: 12px 4px; font-size: 13px; font-weight: 500; border: none; background: none; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--purple-dark); }
 
-    .search-bar { margin-left: auto; display: flex; align-items: center; border: 1px solid var(--border); overflow: hidden; position: relative; }
-    .search-bar input { background: transparent; border: none; color: var(--text); padding: 9px 16px; font-family: var(--font-body); font-size: 0.85rem; outline: none; width: 260px; }
-    .search-bar input::placeholder { color: var(--muted); }
-    .search-bar button { background: var(--accent); border: none; padding: 9px 16px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #0d0d0d; }
+  .tab-content { display: none; padding: 16px; }
+  .tab-content.active { display: block; }
 
-    .search-dropdown {
-      position: absolute; top: 100%; left: 0; right: 0; background: #1c1c1c;
-      border: 1px solid var(--border); border-top: none; z-index: 200;
-      max-height: 320px; overflow-y: auto; display: none;
-    }
-    .search-dropdown.open { display: block; }
-    .search-item {
-      padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #222;
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.85rem; transition: background 0.15s;
-    }
-    .search-item:hover { background: #252525; }
-    .search-item-name { color: var(--text); font-weight: 500; }
-    .search-item-meta { color: var(--muted); font-size: 0.75rem; }
-    .search-item-price { color: var(--accent); font-family: var(--font-display); font-size: 1rem; }
-    .search-empty { padding: 16px; color: var(--muted); font-size: 0.85rem; text-align: center; }
+  /* CHAT */
+  .chat-msgs { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; min-height: 200px; }
+  .msg-row { display: flex; gap: 8px; align-items: flex-end; }
+  .msg-row.me { flex-direction: row-reverse; }
+  .msg-av-sm { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .bubble { max-width: 72%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+  .bubble-j { background: var(--purple-light); color: var(--purple-dark); border-bottom-right-radius: 4px; }
+  .bubble-m { background: var(--pink-light); color: var(--pink-dark); border-bottom-left-radius: 4px; }
+  .msg-meta { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .msg-row.me .msg-meta { text-align: right; }
+  .chat-input-area { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px; }
+  .chat-input-area textarea { width: 100%; border: none; outline: none; font-size: 14px; resize: none; font-family: inherit; background: transparent; color: var(--text); }
+  .chat-input-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .typing-as { font-size: 12px; color: var(--muted); }
+  .typing-as span { font-weight: 600; }
+  .chat-send { padding: 7px 18px; border-radius: 20px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .chat-send-j { background: var(--purple-dark); color: #fff; }
+  .chat-send-m { background: var(--pink-dark); color: #fff; }
+  .empty-state { text-align: center; padding: 2rem 0; color: var(--muted); font-size: 13px; }
 
-    .section-header { padding: 36px 48px 20px; display: flex; align-items: center; justify-content: space-between; }
-    .section-title { font-family: var(--font-display); font-size: 2rem; letter-spacing: 1.5px; }
-    .section-title span { color: var(--accent); }
-    .results-count { font-size: 0.8rem; color: var(--muted); }
-    .view-all { font-size: 0.82rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border); padding-bottom: 2px; transition: color 0.2s, border-color 0.2s; }
-    .view-all:hover { color: var(--accent); border-color: var(--accent); }
+  /* REMINDERS */
+  .rem-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+  .rem-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .rem-j { background: var(--purple-light); }
+  .rem-m { background: var(--pink-light); }
+  .rem-body { flex: 1; }
+  .rem-text { font-size: 14px; line-height: 1.5; }
+  .rem-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .rem-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 0 4px; }
+  .rem-del:hover { color: #E24B4A; }
+  .add-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .add-box textarea { width: 100%; border: none; outline: none; font-size: 14px; resize: none; font-family: inherit; color: var(--text); background: transparent; }
+  .add-box-footer { display: flex; gap: 8px; align-items: center; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .add-box-footer select { flex: 1; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; background: var(--bg); color: var(--text); outline: none; }
+  .add-box-btn { padding: 7px 18px; border-radius: 10px; border: none; font-size: 13px; font-weight: 600; background: var(--purple-dark); color: #fff; cursor: pointer; }
 
-    .cars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px; background: var(--border); margin: 0 48px 48px; }
-    .no-results { grid-column: 1/-1; padding: 60px; text-align: center; color: var(--muted); font-size: 1rem; background: var(--card); }
-    .no-results span { font-family: var(--font-display); font-size: 3rem; color: #333; display: block; margin-bottom: 12px; }
+  /* CALENDAR */
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .cal-nav-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .cal-nav-btn:hover { background: var(--bg); }
+  .cal-month-label { font-size: 15px; font-weight: 600; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 16px; }
+  .cal-day-name { text-align: center; font-size: 11px; color: var(--muted); padding: 4px 0; font-weight: 500; }
+  .cal-day { text-align: center; font-size: 13px; padding: 7px 2px; border-radius: 8px; cursor: pointer; position: relative; }
+  .cal-day:hover { background: var(--bg); }
+  .cal-day.today { background: var(--purple-light); color: var(--purple-dark); font-weight: 600; }
+  .cal-day.selected { background: var(--purple-dark); color: #fff; font-weight: 600; }
+  .cal-day.selected.today { background: var(--purple-dark); }
+  .cal-day.has-event::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--pink-dark); position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); }
+  .cal-day.other-month { color: #ccc; cursor: default; }
+  .cal-day.other-month:hover { background: none; }
+  .cal-events-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+  .ev-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+  .ev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .ev-dot-j { background: var(--purple-dark); }
+  .ev-dot-m { background: var(--pink-dark); }
+  .ev-text { flex: 1; font-size: 14px; }
+  .ev-who { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .ev-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+  .ev-del:hover { color: #E24B4A; }
+  .add-ev-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-ev-row input { flex: 1; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; outline: none; background: var(--card); color: var(--text); }
+  .add-ev-row input:focus { border-color: var(--purple-mid); }
+  .add-ev-row select { padding: 0 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; outline: none; background: var(--card); color: var(--text); }
+  .add-ev-row button { padding: 9px 16px; border-radius: 10px; border: none; background: var(--purple-dark); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-    .car-card { background: var(--card); position: relative; overflow: hidden; transition: background 0.2s; cursor: pointer; }
-    .car-card:hover { background: #212121; }
-    .car-card:hover .card-overlay { opacity: 1; }
-    .car-card:hover .car-image { filter: brightness(1); transform: scale(1.03); }
-    .car-badge { position: absolute; top: 16px; left: 16px; z-index: 2; padding: 4px 10px; font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
-    .badge-buy { background: var(--accent); color: #0d0d0d; }
-    .badge-sell { background: var(--accent2); color: #fff; }
-    .badge-new { background: #3af0c8; color: #0d0d0d; }
-    .car-image { width: 100%; height: 200px; object-fit: cover; display: block; filter: brightness(0.88); transition: filter 0.3s, transform 0.4s; }
-    .card-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.7)); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-    .card-body { padding: 18px 20px 20px; border-top: 1px solid var(--border); }
-    .car-make { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 4px; }
-    .car-name { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 1px; line-height: 1.1; }
-    .car-year { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-    .car-specs { display: flex; gap: 16px; margin: 14px 0; }
-    .spec { display: flex; flex-direction: column; gap: 2px; }
-    .spec-val { font-size: 0.9rem; font-weight: 600; color: var(--text); }
-    .spec-key { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-    .car-price { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 1px; color: var(--accent); }
-    .price-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-    .card-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 9px 18px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s; }
-    .card-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(232,255,60,0.05); }
-    .card-btn.sell { border-color: var(--accent2); color: var(--accent2); }
-    .card-btn.sell:hover { background: rgba(255,92,58,0.07); }
+  .loading { text-align: center; padding: 2rem; color: var(--muted); font-size: 13px; }
+  .online-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--success); }
+  .online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
 
-    /* MODAL */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-      z-index: 500; display: flex; align-items: center; justify-content: center;
-      padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal {
-      background: #161616; border: 1px solid var(--border); width: 100%; max-width: 780px;
-      max-height: 90vh; overflow-y: auto; position: relative;
-      transform: translateY(24px); transition: transform 0.25s;
-    }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal-close {
-      position: absolute; top: 16px; right: 16px; z-index: 10;
-      background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text);
-      width: 36px; height: 36px; font-size: 1.1rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; transition: background 0.2s;
-    }
-    .modal-close:hover { background: #2a2a2a; }
-    .modal-img { width: 100%; height: 280px; object-fit: cover; display: block; }
-    .modal-body { padding: 28px 32px 32px; }
-    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
-    .modal-title { font-family: var(--font-display); font-size: 2.4rem; letter-spacing: 1.5px; line-height: 1; }
-    .modal-make { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 6px; }
-    .modal-price-box { text-align: right; }
-    .modal-price { font-family: var(--font-display); font-size: 2.2rem; color: var(--accent); letter-spacing: 1px; }
-    .modal-price-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-    .modal-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-    .modal-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 16px; }
-    .specs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-bottom: 1px; }
-    .spec-box { background: #1c1c1c; padding: 16px 18px; }
-    .spec-box-val { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .spec-box-key { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
-    .modal-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin: 20px 0; }
-    .modal-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-    .modal-tag { background: #1c1c1c; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; font-size: 0.75rem; letter-spacing: 0.5px; }
-    .modal-actions { display: flex; gap: 12px; }
-    .btn-primary { background: var(--accent); color: #0d0d0d; border: none; padding: 14px 32px; font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 1.5px; cursor: pointer; flex: 1; transition: background 0.2s; }
-    .btn-primary:hover { background: #d4eb2a; }
-    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 14px 24px; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-    .sell-banner { margin: 0 48px 64px; background: var(--accent); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; }
-    .sell-banner::before { content: 'SELL'; position: absolute; font-family: var(--font-display); font-size: 12rem; color: rgba(0,0,0,0.07); right: -20px; top: 50%; transform: translateY(-50%); letter-spacing: 4px; }
-    .sell-banner h2 { font-family: var(--font-display); font-size: 3rem; color: #0d0d0d; letter-spacing: 2px; }
-    .sell-banner p { color: rgba(0,0,0,0.6); margin-top: 8px; font-size: 0.95rem; max-width: 380px; }
-    .btn-sell { background: #0d0d0d; color: var(--accent); border: none; padding: 16px 36px; font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 2px; cursor: pointer; transition: transform 0.2s; white-space: nowrap; }
-    .btn-sell:hover { transform: translateY(-2px); }
-
-    footer { border-top: 1px solid var(--border); padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; }
-    footer .logo { font-size: 1.4rem; }
-    footer p { font-size: 0.8rem; color: var(--muted); }
-
-    @media (max-width: 768px) {
-      nav, .hero, .filters, .section-header, .cars-grid, .sell-banner, footer { padding-left: 20px; padding-right: 20px; }
-      .cars-grid { margin: 0 0 40px; }
-      .hero { flex-direction: column; gap: 32px; padding-top: 48px; }
-      .hero-stats { text-align: left; }
-      .sell-banner { flex-direction: column; gap: 24px; text-align: center; margin: 0 0 40px; }
-      .nav-links { display: none; }
-      .modal { max-height: 95vh; }
-      .modal-body { padding: 20px; }
-      .specs-grid { grid-template-columns: repeat(2, 1fr); }
-      .search-bar input { width: 160px; }
-      .modal-header { flex-direction: column; gap: 12px; }
-      .modal-price-box { text-align: left; }
-    }
-  </style>
+  @media (max-width: 480px) {
+    .tab-btn { font-size: 12px; padding: 10px 2px; }
+  }
+</style>
 </head>
 <body>
 
-<nav>
-  <div class="logo">AUTO<span>DRIVE</span></div>
-  <div class="nav-links">
-    <a href="#">Buy a Car</a><a href="#">Sell a Car</a><a href="#">Compare</a>
-    <a href="#">Financing</a><a href="#">About</a>
-  </div>
-  <button class="btn-nav">List Your Car</button>
-</nav>
-
-<section class="hero">
-  <div class="hero-left">
-    <h1>FIND YOUR<br/><span>NEXT RIDE.</span></h1>
-    <p>Browse hundreds of verified cars — new arrivals daily. Buy with confidence or sell yours in minutes.</p>
-  </div>
-  <div class="hero-stats">
-    <div><div class="stat-num" id="totalCount">—</div><div class="stat-label">Cars Listed</div></div>
-    <div><div class="stat-num">12K</div><div class="stat-label">Happy Buyers</div></div>
-    <div><div class="stat-num">98%</div><div class="stat-label">Satisfaction</div></div>
-  </div>
-</section>
-
-<div class="filters">
-  <span class="filter-label">Filter:</span>
-  <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
-  <button class="filter-btn" onclick="setFilter(this,'buy')">Buy</button>
-  <button class="filter-btn" onclick="setFilter(this,'sell')">Sell</button>
-  <button class="filter-btn" onclick="setFilter(this,'new')">New</button>
-  <button class="filter-btn" onclick="setFilter(this,'used')">Used</button>
-  <button class="filter-btn" onclick="setFilter(this,'suv')">SUV</button>
-  <button class="filter-btn" onclick="setFilter(this,'sedan')">Sedan</button>
-  <button class="filter-btn" onclick="setFilter(this,'electric')">Electric</button>
-  <div class="search-bar" id="searchBar">
-    <input type="text" id="searchInput" placeholder="Search BMW X5, Z4, Mercedes C300…" autocomplete="off"/>
-    <button onclick="doSearch()">Search</button>
-    <div class="search-dropdown" id="searchDropdown"></div>
-  </div>
-</div>
-
-<div class="section-header">
-  <div>
-    <h2 class="section-title">FEATURED <span>LISTINGS</span></h2>
-    <div class="results-count" id="resultsCount"></div>
-  </div>
-  <a href="#" class="view-all">View all listings →</a>
-</div>
-
-<div class="cars-grid" id="carsGrid"></div>
-
-<div class="sell-banner">
-  <div>
-    <h2>GOT A CAR TO SELL?</h2>
-    <p>List your vehicle in under 5 minutes. Reach thousands of verified buyers across Kenya today.</p>
-  </div>
-  <button class="btn-sell">LIST YOUR CAR →</button>
-</div>
-
-<footer>
-  <div class="logo">AUTO<span>DRIVE</span></div>
-  <p>© 2026 AutoDrive Kenya · All rights reserved</p>
-  <p style="font-size:0.75rem;color:#555;">Nairobi, Kenya</p>
-</footer>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal" id="modalBox">
-    <button class="modal-close" onclick="closeModalDirect()">✕</button>
-    <img class="modal-img" id="modalImg" src="" alt=""/>
-    <div class="modal-body">
-      <div class="modal-header">
-        <div>
-          <div class="modal-make" id="modalMake"></div>
-          <div class="modal-title" id="modalTitle"></div>
-          <div class="car-year" id="modalYear" style="margin-top:6px;font-size:0.85rem;color:var(--muted);"></div>
-        </div>
-        <div class="modal-price-box">
-          <div class="modal-price-label" id="modalPriceLabel"></div>
-          <div class="modal-price" id="modalPrice"></div>
-        </div>
-      </div>
-      <hr class="modal-divider"/>
-      <div class="modal-section-title">FULL SPECIFICATIONS</div>
-      <div class="specs-grid" id="modalSpecs"></div>
-      <p class="modal-desc" id="modalDesc"></p>
-      <div class="modal-tags" id="modalTags"></div>
-      <div class="modal-actions">
-        <button class="btn-primary" id="modalCTA">VIEW DETAILS</button>
-        <button class="btn-secondary" onclick="closeModalDirect()">Close</button>
-      </div>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-avatars">
+      <div class="login-av login-av-j">J</div>
+      <div class="login-av login-av-m">M</div>
+    </div>
+    <div class="login-title">Jay & Millie 💜</div>
+    <div class="login-sub">our private little space</div>
+    <div class="login-btns">
+      <button class="login-btn login-btn-j" onclick="selectUser('Jay')">I'm Jay</button>
+      <button class="login-btn login-btn-m" onclick="selectUser('Millie')">I'm Millie</button>
+    </div>
+    <div class="pin-row" id="pin-row">
+      <input type="password" id="pin-input" maxlength="4" placeholder="Enter PIN" inputmode="numeric">
+      <button class="pin-confirm" id="pin-confirm-btn" onclick="confirmPin()">Enter</button>
+      <div class="pin-error" id="pin-error">Wrong PIN, try again 🙈</div>
     </div>
   </div>
 </div>
 
-<script>
-const CARS = [
-  {
-    id:1, make:'BMW', model:'M3 Competition', year:2023, fuel:'Petrol', trans:'Automatic',
-    badge:'buy', category:['buy','sedan','used'],
-    img:'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=700&q=80',
-    price:'KSh 8.4M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'503 hp'},{k:'Mileage',v:'18,400 km'},{k:'0–100',v:'3.2s'},
-      {k:'Engine',v:'3.0L TwinTurbo'},{k:'Drive',v:'RWD/AWD'},{k:'Seats',v:'4'},
-      {k:'Color',v:'Isle Blue'},{k:'Gearbox',v:'8-Speed M-DCT'},{k:'Top Speed',v:'290 km/h'}
-    ],
-    tags:['Verified','Sport Package','M Carbon Brakes','Head-up Display','Harman Kardon'],
-    desc:'One of the most celebrated sports sedans ever built. This M3 Competition packs a 3.0L twin-turbo inline-6 with 503hp, delivering an intoxicating driving experience both on road and track. Nairobi registered, full service history available.'
-  },
-  {
-    id:2, make:'Porsche', model:'911 Carrera S', year:2021, fuel:'Petrol', trans:'PDK',
-    badge:'sell', category:['sell','used'],
-    img:'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=700&q=80',
-    price:'KSh 14.2M', priceLabel:'Listed At',
-    specs:[
-      {k:'Power',v:'450 hp'},{k:'Mileage',v:'32,000 km'},{k:'0–100',v:'3.7s'},
-      {k:'Engine',v:'3.0L Twin-Turbo Flat-6'},{k:'Drive',v:'RWD'},{k:'Seats',v:'4'},
-      {k:'Color',v:'GT Silver'},{k:'Gearbox',v:'7-Speed PDK'},{k:'Top Speed',v:'308 km/h'}
-    ],
-    tags:['Sport Chrono','PASM','Burmester Sound','Sport Exhaust','Night Vision Assist'],
-    desc:'The iconic 911 in its most accessible yet thrilling form. Impeccably maintained with Porsche Approved service record. Every drive is an event with the signature flat-six soundtrack and legendary rear-engine balance.'
-  },
-  {
-    id:3, make:'Tesla', model:'Model 3 Long Range', year:2024, fuel:'Electric', trans:'Auto',
-    badge:'new', category:['buy','new','sedan','electric'],
-    img:'https://www.electrive.com/media/2024/10/tesla-model-3-long-range-2024-01.jpeg',
-    price:'KSh 6.9M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'358 hp'},{k:'Range',v:'614 km'},{k:'0–100',v:'4.4s'},
-      {k:'Battery',v:'82 kWh'},{k:'Drive',v:'AWD'},{k:'Seats',v:'5'},
-      {k:'Charge',v:'250 kW DC'},{k:'Autopilot',v:'Included'},{k:'Screen',v:'15.4" Touch'}
-    ],
-    tags:['Full Self-Driving Ready','Over-the-Air Updates','Glass Roof','Ventilated Seats','Sentry Mode'],
-    desc:'The future is here. Tesla Model 3 Long Range AWD with the longest EV range available in Kenya. Supercharger-compatible, stunning interior, and software that keeps getting better with every update.'
-  },
-  {
-    id:4, make:'Toyota', model:'Land Cruiser 300', year:2022, fuel:'Diesel', trans:'Automatic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://media.drive.com.au/obj/tx_q:50,rs:auto:1920:1080:1/caradvice/private/f9bdzukyadtuxzp0qsmn',
-    price:'KSh 11.5M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'309 hp'},{k:'Mileage',v:'45,000 km'},{k:'Torque',v:'700 Nm'},
-      {k:'Engine',v:'3.5L Twin-Turbo V6'},{k:'Drive',v:'4WD'},{k:'Seats',v:'7'},
-      {k:'Towing',v:'3,500 kg'},{k:'Suspension',v:'Multi-link'},{k:'Safety',v:'Toyota Safety Sense'}
-    ],
-    tags:['7 Seater','4WD Terrain Select','Kinetic Dynamic Suspension','360° Camera','Power Moonroof'],
-    desc:'The legendary Land Cruiser reborn. Lighter, faster, and more capable than ever. Ideal for Kenya\'s diverse terrain — from Nairobi\'s roads to demanding off-road adventures up-country. Full dealer service history.'
-  },
-  {
-    id:5, make:'Mercedes-Benz', model:'C300 AMG Line', year:2022, fuel:'Petrol', trans:'9G-Tronic',
-    badge:'sell', category:['sell','sedan','used'],
-    img:'https://www.thedrive.com/wp-content/uploads/2022/12/21/IMG_0893-scaled.jpg?strip=all&quality=85',
-    price:'KSh 7.1M', priceLabel:'Listed At',
-    specs:[
-      {k:'Power',v:'255 hp'},{k:'Mileage',v:'28,100 km'},{k:'0–100',v:'5.8s'},
-      {k:'Engine',v:'2.0L Turbo I4'},{k:'Drive',v:'RWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'9G-Tronic'},{k:'Display',v:'11.9" MBUX'},{k:'Sound',v:'Burmester 3D'}
-    ],
-    tags:['AMG Line Exterior','Panoramic Roof','MBUX Infotainment','Ambient Lighting','Keyless Entry'],
-    desc:'The all-new W206 C-Class with stunning design and technology borrowed from the S-Class. AMG Line styling gives it an aggressive stance while the interior feels like a luxury suite. One owner, dealer serviced.'
-  },
-  {
-    id:6, make:'Audi', model:'Q5 Sportback', year:2023, fuel:'Petrol', trans:'S-Tronic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://assets-eu-01.kc-usercontent.com/3b3d460e-c5ae-0195-6b86-3ac7fb9d52db/6f05d571-8736-44c6-ac7b-69bb5082cdfb/Audi%20Q5%20Sportback%20%284%29.jpg',
-    price:'KSh 9.8M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'261 hp'},{k:'Mileage',v:'12,800 km'},{k:'0–100',v:'5.9s'},
-      {k:'Engine',v:'2.0L TFSI'},{k:'Drive',v:'Quattro AWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'7-Speed S-Tronic'},{k:'Virtual Cockpit',v:'12.3"'},{k:'Roof',v:'Panoramic'}
-    ],
-    tags:['Quattro AWD','Virtual Cockpit Plus','Bang & Olufsen Sound','S Line','Matrix LED'],
-    desc:'Combining SUV practicality with coupé elegance — the Audi Q5 Sportback delivers the best of both worlds. Quattro all-wheel drive and 261hp ensure confident performance in all conditions. Low mileage, one owner.'
-  },
-  {
-    id:7, make:'BMW', model:'X5 xDrive40i', year:2023, fuel:'Petrol', trans:'Automatic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://carsales.pxcrush.net/carsales/cars/dealer/bo9s782obe42g4qm4ptig5vf8.jpg?pxc_method=GravityFill&width=480&height=320&watermark=1522915120',
-    price:'KSh 12.8M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'340 hp'},{k:'Mileage',v:'22,000 km'},{k:'0–100',v:'5.5s'},
-      {k:'Engine',v:'3.0L B58 Inline-6'},{k:'Drive',v:'xDrive AWD'},{k:'Seats',v:'5/7'},
-      {k:'Gearbox',v:'8-Speed Steptronic'},{k:'Display',v:'12.3" iDrive'},{k:'Roof',v:'Panoramic Sky Lounge'}
-    ],
-    tags:['M Sport Package','xDrive AWD','Harman Kardon','Adaptive Suspension','Wireless CarPlay'],
-    desc:'The BMW X5 — benchmark of the luxury SUV segment. This xDrive40i packs a silky smooth 3.0L inline-six and seats up to 7. Equally at home on Nairobi\'s Westlands streets or a Mombasa road trip.'
-  },
-  {
-    id:8, make:'BMW', model:'X3 xDrive30i', year:2022, fuel:'Petrol', trans:'Automatic',
-    badge:'sell', category:['sell','suv','used'],
-    img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLHw7QxU39x-pMhE2fmg0BT1Y9Ltbvc2W6Pg&s',
-    price:'KSh 7.9M', priceLabel:'Listed At',
-    specs:[
-      {k:'Power',v:'248 hp'},{k:'Mileage',v:'35,000 km'},{k:'0–100',v:'6.0s'},
-      {k:'Engine',v:'2.0L TwinPower Turbo'},{k:'Drive',v:'xDrive AWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'8-Speed Steptronic'},{k:'Display',v:'10.25" iDrive'},{k:'Park',v:'Parking Assist Plus'}
-    ],
-    tags:['M Sport','xDrive','Sunroof','Live Cockpit Professional','Heated Seats'],
-    desc:'BMW\'s best-selling SAV in a sharp 2022 spec. The X3 xDrive30i is perfect for the Nairobi urban commuter who needs space, performance and AWD confidence. Full BMW service history, two keys.'
-  },
-  {
-    id:9, make:'BMW', model:'Z4 sDrive30i', year:2021, fuel:'Petrol', trans:'Automatic',
-    badge:'buy', category:['buy','used'],
-    img:'https://cdn.motor1.com/images/mgl/2xvMz/s1/2019-bmw-z4-m40i.jpg',
-    price:'KSh 9.2M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'255 hp'},{k:'Mileage',v:'19,500 km'},{k:'0–100',v:'5.4s'},
-      {k:'Engine',v:'2.0L TwinPower Turbo'},{k:'Drive',v:'RWD'},{k:'Seats',v:'2'},
-      {k:'Gearbox',v:'8-Speed Steptronic'},{k:'Roof',v:'Retractable Soft Top'},{k:'Color',v:'Misano Blue'}
-    ],
-    tags:['Roadster','M Sport Package','Active Driving Assistant','HiFi Sound','Park Distance Control'],
-    desc:'The BMW Z4 is pure driving pleasure distilled. This sDrive30i roadster offers a thrilling open-top experience with a punchy 2.0L turbo engine and rear-wheel drive dynamics. A rare find in Kenya.'
-  },
-  {
-    id:10, make:'BMW', model:'X7 xDrive40i', year:2023, fuel:'Petrol', trans:'Automatic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://bmw.scene7.com/is/image/BMW/x7-xdrive40i-m-sport-teaser?wid=1185&hei=533',
-    price:'KSh 18.5M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'340 hp'},{k:'Mileage',v:'14,200 km'},{k:'0–100',v:'5.8s'},
-      {k:'Engine',v:'3.0L B58 Inline-6'},{k:'Drive',v:'xDrive AWD'},{k:'Seats',v:'6/7'},
-      {k:'Display',v:'Curved 12.3" Dual'},{k:'Roof',v:'Panoramic Sky Lounge'},{k:'Sound',v:'Bowers & Wilkins'}
-    ],
-    tags:['6/7 Seater','Executive Package','Bowers & Wilkins','Massaging Seats','Night Vision'],
-    desc:'BMW\'s flagship SUV — the X7 commands every road it\'s on. Palatial interior, third-row seating, and a presence unlike anything else on Kenyan roads. This is the ultimate family command vehicle.'
-  },
-  {
-    id:11, make:'BMW', model:'M4 Competition', year:2022, fuel:'Petrol', trans:'M-DCT',
-    badge:'sell', category:['sell','used'],
-    img:'https://bringatrailer.com/wp-content/uploads/2024/08/2022_bmw_m4-competition-xdrive_n5a8152-30378.jpg',
-    price:'KSh 13.5M', priceLabel:'Listed At',
-    specs:[
-      {k:'Power',v:'510 hp'},{k:'Mileage',v:'21,000 km'},{k:'0–100',v:'3.9s'},
-      {k:'Engine',v:'3.0L S58 TwinTurbo'},{k:'Drive',v:'RWD'},{k:'Seats',v:'4'},
-      {k:'Gearbox',v:'8-Speed M-DCT'},{k:'Brakes',v:'M Carbon Ceramic'},{k:'Top Speed',v:'290 km/h'}
-    ],
-    tags:['M Competition Package','Carbon Fibre Roof','M Drive Recorder','Merino Leather','Adaptive M Suspension'],
-    desc:'The M4 Competition is the coupe equivalent of the M3\'s savagery. With 510hp and the aggressive wide-body styling, it turns every journey into an event. Full M service history, track never used.'
-  },
-  {
-    id:12, make:'Range Rover', model:'Sport HSE Dynamic', year:2023, fuel:'Diesel', trans:'Automatic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://media.production.jlrms.com/2020-07-13/image/3d64a014-d0e5-4d64-bc71-711f863e3e37/RRS_21MY_HSE_DYN_BLACK_150720_01.jpg?VersionId=0jv4UVU5PNhtLLwaqvttrMRa2knsKuaC',
-    price:'KSh 16.9M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'350 hp'},{k:'Mileage',v:'28,000 km'},{k:'0–100',v:'6.1s'},
-      {k:'Engine',v:'3.0L SD6 Turbo'},{k:'Drive',v:'4WD Terrain Response'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'8-Speed ZF Auto'},{k:'Display',v:'Pivi Pro 11.4"'},{k:'Sound',v:'Meridian Surround'}
-    ],
-    tags:['Dynamic Pack','Terrain Response 2','Air Suspension','Meridian Sound','Deployable Side Steps'],
-    desc:'The Range Rover Sport defines the luxury performance SUV class. Terrain Response 2 means it can tackle any Kenyan terrain in style, while the Pivi Pro infotainment and Meridian audio make every moment onboard exceptional.'
-  },
-  {
-    id:13, make:'Mercedes-Benz', model:'GLE 450 AMG', year:2023, fuel:'Petrol', trans:'9G-Tronic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://www.topgear.com/sites/default/files/2025/03/Medium-48689-mercedes-gle-53-0084.jpg',
-    price:'KSh 14.6M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'367 hp'},{k:'Mileage',v:'18,500 km'},{k:'0–100',v:'5.7s'},
-      {k:'Engine',v:'3.0L EQ Boost Turbo'},{k:'Drive',v:'4MATIC AWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'9G-Tronic'},{k:'Display',v:'MBUX 12.3" Dual'},{k:'Air Susp',v:'Standard'}
-    ],
-    tags:['AMG Line','4MATIC AWD','Air Body Control','MBUX AR Nav','Burmester Surround'],
-    desc:'The GLE 450 sits at the sweet spot of the Mercedes SUV lineup — large enough to be commanding, athletic enough to be thrilling. EQ Boost mild hybrid improves fuel economy without sacrificing a single horsepower of feel.'
-  },
-  {
-    id:14, make:'Lexus', model:'LX 600 F-Sport', year:2023, fuel:'Petrol', trans:'Automatic',
-    badge:'buy', category:['buy','suv','new'],
-    img:'https://hips.hearstapps.com/hmg-prod/images/2025-lexus-lx600-f-sport-exterior-pr-104-6864352bd13d7.jpg',
-    price:'KSh 22.0M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'415 hp'},{k:'Mileage',v:'8,200 km'},{k:'0–100',v:'6.7s'},
-      {k:'Engine',v:'3.5L Twin-Turbo V6'},{k:'Drive',v:'4WD'},{k:'Seats',v:'7'},
-      {k:'Gearbox',v:'10-Speed Auto'},{k:'Display',v:'12.3" Touchscreen'},{k:'Sound',v:'Mark Levinson 25-Speaker'}
-    ],
-    tags:['F-Sport Design','Mark Levinson Audio','7 Seater','Multi-Terrain Select','Semi-Aniline Leather'],
-    desc:'Lexus\'s flagship SUV now with a twin-turbo V6 — more powerful, more refined than ever. The F-Sport Design package adds a dramatic presence and sport-tuned suspension. Unmatched reliability meets ultra-luxury.'
-  },
-  {
-    id:15, make:'Toyota', model:'Prado TX-L', year:2023, fuel:'Diesel', trans:'Automatic',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://sparegarage.co.ke/storage/cars/listings/PFXTLF9N/1041118-273571-%20(1).jpg',
-    price:'KSh 8.7M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'204 hp'},{k:'Mileage',v:'31,000 km'},{k:'Torque',v:'500 Nm'},
-      {k:'Engine',v:'2.8L 1GD-FTV Diesel'},{k:'Drive',v:'4WD'},{k:'Seats',v:'7/8'},
-      {k:'Gearbox',v:'6-Speed Auto'},{k:'Ground Cl.',v:'215 mm'},{k:'Safety',v:'Toyota Safety Sense'}
-    ],
-    tags:['7 Seater','Sunroof','Leather Seats','Reverse Camera','Pre-Collision System'],
-    desc:'The Toyota Prado TX-L is Kenya\'s most practical luxury 4x4. Combining genuine off-road capability with 7-seat practicality and Toyota\'s legendary reliability. Perfect for families and long upcountry journeys.'
-  },
-  {
-    id:16, make:'Hyundai', model:'Tucson N-Line', year:2023, fuel:'Petrol', trans:'DCT',
-    badge:'new', category:['buy','new','suv'],
-    img:'https://cdn.motor1.com/images/mgl/WVwx1/s1/2021-hyundai-tucson-n-line.webp',
-    price:'KSh 4.2M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'178 hp'},{k:'Mileage',v:'5,100 km'},{k:'0–100',v:'8.1s'},
-      {k:'Engine',v:'1.6L Turbo GDI'},{k:'Drive',v:'FWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'7-Speed DCT'},{k:'Display',v:'10.25" Touchscreen'},{k:'ADAS',v:'SmartSense Suite'}
-    ],
-    tags:['N-Line Sport Pack','BlueLink Connected','Wireless CarPlay','Lane Keeping Assist','Heated Steering'],
-    desc:'Hyundai\'s Tucson N-Line brings sporty style and turbocharged fun at an accessible price. With bold parametric jewel patterns, a 10.25" screen and full SmartSense safety suite, this is the value pick of 2023.'
-  },
-  {
-    id:17, make:'Subaru', model:'Outback Premium', year:2022, fuel:'Petrol', trans:'CVT',
-    badge:'sell', category:['sell','used','suv'],
-    img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKjRSsaO2XRoZ32jiyQFKqTKq7qguiFOv52Q&s',
-    price:'KSh 3.8M', priceLabel:'Listed At',
-    specs:[
-      {k:'Power',v:'182 hp'},{k:'Mileage',v:'48,000 km'},{k:'Torque',v:'239 Nm'},
-      {k:'Engine',v:'2.5L Boxer DOHC'},{k:'Drive',v:'Symmetrical AWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'Lineartronic CVT'},{k:'Clearance',v:'220 mm'},{k:'EyeSight',v:'Standard'}
-    ],
-    tags:['Symmetrical AWD','EyeSight Driver Assist','Subaru STARLINK','Heated Seats','Power Liftgate'],
-    desc:'The Outback is a legend in Kenya\'s expat and adventure community. 220mm ground clearance, Subaru\'s unbreakable Symmetrical AWD, and a practical wagon body. One of the last great analogue-feel family cars.'
-  },
-  {
-    id:18, make:'Volkswagen', model:'Tiguan R-Line', year:2023, fuel:'Petrol', trans:'DSG',
-    badge:'buy', category:['buy','suv','used'],
-    img:'https://carsforsale.co.ke/wp-content/uploads/2024/02/2017-Volkswagen-Tiguan-R-Line-a.jpg',
-    price:'KSh 5.6M', priceLabel:'Asking Price',
-    specs:[
-      {k:'Power',v:'184 hp'},{k:'Mileage',v:'16,200 km'},{k:'0–100',v:'7.5s'},
-      {k:'Engine',v:'2.0L TSI'},{k:'Drive',v:'4Motion AWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'7-Speed DSG'},{k:'Display',v:'9.2" Discover Pro'},{k:'Sound',v:'Beats Audio'}
-    ],
-    tags:['R-Line Pack','4Motion AWD','Beats Audio','Digital Cockpit','Panoramic Roof'],
-    desc:'The Tiguan R-Line is VW\'s sharpest-looking SUV. A 2.0L TSI with DSG gearbox gives it the performance edge while the R-Line cosmetics mean every school run feels like a photoshoot. Low mileage, non-smoker owner.'
-  },
-  {
-    id:19, make:'Mazda', model:'CX-5 Signature', year:2022, fuel:'Petrol', trans:'Automatic',
-    badge:'sell', category:['sell','used','suv'],
-    img:'https://di-uploads-pod40.dealerinspire.com/kennyrossmazda/uploads/2022/02/2022-mazda-cx-5-front-three-quarters-red-1631288272.jpg',
-    price:'KSh 4.5M', priceLabel:'Listed At',
-    specs:[
-      {k:'Power',v:'187 hp'},{k:'Mileage',v:'29,000 km'},{k:'Torque',v:'252 Nm'},
-      {k:'Engine',v:'2.5L Skyactiv-G'},{k:'Drive',v:'AWD'},{k:'Seats',v:'5'},
-      {k:'Gearbox',v:'6-Speed Auto'},{k:'Display',v:'10.25" Infotainment'},{k:'Sound',v:'Bose 10-Speaker'}
-    ],
-    tags:['Signature Trim','AWD','Bose Audio','Leather Interior','Head-Up Display'],
-    desc:'The Mazda CX-5 Signature is the most luxurious trim of Mazda\'s best-selling SUV. With a refined 2.5L engine, AWD capability, and a premium interior, it offers exceptional value for those seeking style and substance.'
+<!-- APP -->
+<div id="app">
+  <div class="app-header">
+    <div class="header-left">
+      <div class="h-avatars">
+        <div class="h-av h-av-j">J</div>
+        <div class="h-av h-av-m">M</div>
+      </div>
+      <div>
+        <div class="h-title">Jay & Millie 💜</div>
+        <div class="h-sub" id="logged-in-as">logged in as —</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Leave</button>
+  </div>
+
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="switchTab('chat', this)">💬 Messages</button>
+    <button class="tab-btn" onclick="switchTab('reminders', this)">🔔 Reminders</button>
+    <button class="tab-btn" onclick="switchTab('calendar', this)">📅 Planner</button>
+  </div>
+
+  <!-- CHAT -->
+  <div id="tab-chat" class="tab-content active">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="loading">Loading messages...</div>
+    </div>
+    <div class="chat-input-area">
+      <textarea id="chat-input" rows="2" placeholder="Type something..."></textarea>
+      <div class="chat-input-footer">
+        <div class="typing-as">Sending as <span id="typing-as-name">—</span></div>
+        <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMINDERS -->
+  <div id="tab-reminders" class="tab-content">
+    <div id="rem-list"><div class="loading">Loading reminders...</div></div>
+    <div class="add-box">
+      <textarea id="rem-input" rows="2" placeholder="Leave a reminder or sweet note..."></textarea>
+      <div class="add-box-footer">
+        <select id="rem-from-sel">
+          <option value="Jay">From Jay</option>
+          <option value="Millie">From Millie</option>
+        </select>
+        <button class="add-box-btn" onclick="addReminder()">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="tab-calendar" class="tab-content">
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+      <div class="cal-month-label" id="cal-label"></div>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-events-title" id="cal-events-title">Plans</div>
+    <div id="events-list"></div>
+    <div class="add-ev-row">
+      <input type="text" id="ev-input" placeholder="Add a plan...">
+      <select id="ev-who-sel">
+        <option value="Jay">Jay</option>
+        <option value="Millie">Millie</option>
+      </select>
+      <button onclick="addEvent()">+ Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ==============================
+  // 🔧 PASTE YUR FIREBASE CONFIG HER
+  // ==============================
+  const firebaseConfig = {
+    apiKey: "AIzaSyDig5IqgBD1vj8godQYd5bzMErESkePCwI",
+  authDomain: "jay-and-millie.firebaseapp.com",
+  projectId: "jay-and-millie",
+  storageBucket: "jay-and-millie.firebasestorage.app",
+  messagingSenderId: "458162909286",
+  appId: "1:458162909286:web:90814571d8c82e8f93fda7",
+  measurementId: "G-0565NWVG2T"
+    };
+  // ==============================
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // PINs — change these!
+  const PINS = { Jay: '2007', Millie: '2007' };
+
+  let currentUser = null;
+  let calDate = new Date();
+  let selectedDay = new Date();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS = ['S','M','T','W','T','F','S'];
+
+  function dateKey(d) { return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+  function fmtTime(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   }
-];
-
-let activeFilter = 'all';
-let searchQuery = '';
-
-function setFilter(el, filter) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  activeFilter = filter;
-  renderGrid();
-}
-
-function matchesFilter(car) {
-  if (activeFilter === 'all') return true;
-  if (activeFilter === 'buy') return car.category.includes('buy');
-  if (activeFilter === 'sell') return car.category.includes('sell');
-  if (activeFilter === 'new') return car.category.includes('new');
-  if (activeFilter === 'used') return car.category.includes('used');
-  if (activeFilter === 'suv') return car.category.includes('suv');
-  if (activeFilter === 'sedan') return car.category.includes('sedan');
-  if (activeFilter === 'electric') return car.category.includes('electric');
-  return true;
-}
-
-function matchesSearch(car) {
-  if (!searchQuery) return true;
-  const q = searchQuery.toLowerCase();
-  const searchable = `${car.make} ${car.model} ${car.year} ${car.fuel} ${car.trans}`.toLowerCase();
-  return searchable.includes(q);
-}
-
-function getBadgeClass(badge) {
-  if (badge === 'buy') return 'badge-buy';
-  if (badge === 'sell') return 'badge-sell';
-  return 'badge-new';
-}
-
-function getBadgeLabel(badge) {
-  if (badge === 'buy') return 'Buy';
-  if (badge === 'sell') return 'Sell';
-  return 'New';
-}
-
-function renderGrid() {
-  const grid = document.getElementById('carsGrid');
-  const filtered = CARS.filter(c => matchesFilter(c) && matchesSearch(c));
-  document.getElementById('resultsCount').textContent = filtered.length > 0 ? `${filtered.length} cars found` : '';
-
-  if (filtered.length === 0) {
-    grid.innerHTML = `<div class="no-results"><span>¯\\_(ツ)_/¯</span>No cars match your search. Try a different query or clear the filter.</div>`;
-    return;
+  function fmtDateShort(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString([], {month:'short', day:'numeric'});
   }
 
-  grid.innerHTML = filtered.map(car => `
-    <div class="car-card" onclick="openModal(${car.id})">
-      <span class="car-badge ${getBadgeClass(car.badge)}">${getBadgeLabel(car.badge)}</span>
-      <div class="card-overlay"></div>
-      <img class="car-image" src="${car.img}" alt="${car.make} ${car.model}" loading="lazy"/>
-      <div class="card-body">
-        <div class="car-make">${car.make}</div>
-        <div class="car-name">${car.model.toUpperCase()}</div>
-        <div class="car-year">${car.year} · ${car.fuel} · ${car.trans}</div>
-        <div class="car-specs">
-          ${car.specs.slice(0,3).map(s => `<div class="spec"><span class="spec-val">${s.v}</span><span class="spec-key">${s.k}</span></div>`).join('')}
-        </div>
-        <div class="card-footer">
+  window.selectUser = function(user) {
+    currentUser = user;
+    const pinRow = document.getElementById('pin-row');
+    const confirmBtn = document.getElementById('pin-confirm-btn');
+    pinRow.classList.add('show');
+    confirmBtn.className = 'pin-confirm pin-confirm-' + (user === 'Jay' ? 'j' : 'm');
+    document.getElementById('pin-input').focus();
+    document.getElementById('pin-error').style.display = 'none';
+  };
+
+  window.confirmPin = function() {
+    const entered = document.getElementById('pin-input').value;
+    if (entered === PINS[currentUser]) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('logged-in-as').textContent = 'logged in as ' + currentUser;
+      document.getElementById('typing-as-name').textContent = currentUser;
+      const sendBtn = document.getElementById('chat-send-btn');
+      sendBtn.className = 'chat-send chat-send-' + (currentUser === 'Jay' ? 'j' : 'm');
+      document.getElementById('rem-from-sel').value = currentUser;
+      document.getElementById('ev-who-sel').value = currentUser;
+      startListeners();
+      renderCal();
+    } else {
+      document.getElementById('pin-error').style.display = 'block';
+      document.getElementById('pin-input').value = '';
+    }
+  };
+
+  window.logout = function() {
+    currentUser = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-row').classList.remove('show');
+  };
+
+  window.switchTab = function(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+    if (name === 'calendar') renderCal();
+  };
+
+  function startListeners() {
+    // Messages
+    const msgsQ = query(collection(db, 'messages'), orderBy('timestamp', 'asc'));
+    onSnapshot(msgsQ, snap => {
+      const box = document.getElementById('chat-msgs');
+      if (snap.empty) {
+        box.innerHTML = '<div class="empty-state">No messages yet — say something! 💜</div>';
+        return;
+      }
+      box.innerHTML = snap.docs.map(d => {
+        const m = d.data();
+        const isMe = m.from === currentUser;
+        const bubbleCls = m.from === 'Jay' ? 'bubble bubble-j' : 'bubble bubble-m';
+        const avCls = m.from === 'Jay' ? 'msg-av-sm h-av-j' : 'msg-av-sm h-av-m';
+        return `<div class="msg-row ${isMe ? 'me' : ''}">
+          <div class="${avCls}" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${m.from[0]}</div>
           <div>
-            <div class="price-label">${car.priceLabel}</div>
-            <div class="car-price">${car.price}</div>
+            <div class="${bubbleCls}">${m.text}</div>
+            <div class="msg-meta">${m.from} · ${fmtTime(m.timestamp)}</div>
           </div>
-          <button class="card-btn ${car.badge === 'sell' ? 'sell' : ''}" onclick="event.stopPropagation(); openModal(${car.id})">
-            ${car.badge === 'sell' ? 'Make Offer' : 'View Details'}
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
+        </div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    });
 
-function openModal(id) {
-  const car = CARS.find(c => c.id === id);
-  if (!car) return;
-  document.getElementById('modalImg').src = car.img;
-  document.getElementById('modalMake').textContent = car.make;
-  document.getElementById('modalTitle').textContent = car.model.toUpperCase();
-  document.getElementById('modalYear').textContent = `${car.year} · ${car.fuel} · ${car.trans}`;
-  document.getElementById('modalPriceLabel').textContent = car.priceLabel;
-  document.getElementById('modalPrice').textContent = car.price;
-  document.getElementById('modalDesc').textContent = car.desc;
-  document.getElementById('modalSpecs').innerHTML = car.specs.map(s => `
-    <div class="spec-box">
-      <div class="spec-box-val">${s.v}</div>
-      <div class="spec-box-key">${s.k}</div>
-    </div>
-  `).join('');
-  document.getElementById('modalTags').innerHTML = car.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
-  const cta = document.getElementById('modalCTA');
-  if (car.badge === 'sell') { cta.textContent = 'MAKE AN OFFER'; cta.style.background = 'var(--accent2)'; }
-  else { cta.textContent = 'ENQUIRE NOW'; cta.style.background = 'var(--accent)'; }
-  document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
+    // Reminders
+    const remsQ = query(collection(db, 'reminders'), orderBy('timestamp', 'desc'));
+    onSnapshot(remsQ, snap => {
+      const list = document.getElementById('rem-list');
+      if (snap.empty) {
+        list.innerHTML = '<div class="empty-state">No reminders yet 🔔</div>';
+        return;
+      }
+      list.innerHTML = snap.docs.map(d => {
+        const r = d.data();
+        const iconCls = r.from === 'Jay' ? 'rem-icon rem-j' : 'rem-icon rem-m';
+        const emoji = r.from === 'Jay' ? '💜' : '🌸';
+        return `<div class="rem-card">
+          <div class="${iconCls}">${emoji}</div>
+          <div class="rem-body">
+            <div class="rem-text">${r.text}</div>
+            <div class="rem-meta">From ${r.from} · ${fmtDateShort(r.timestamp)}</div>
+          </div>
+          <button class="rem-del" onclick="deleteReminder('${d.id}')">×</button>
+        </div>`;
+      }).join('');
+    });
 
-function closeModal(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
-}
-function closeModalDirect() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
-
-// SEARCH
-const searchInput = document.getElementById('searchInput');
-const dropdown = document.getElementById('searchDropdown');
-
-searchInput.addEventListener('input', function() {
-  const q = this.value.trim().toLowerCase();
-  if (!q) { dropdown.classList.remove('open'); searchQuery = ''; renderGrid(); return; }
-  const matches = CARS.filter(c => `${c.make} ${c.model} ${c.year} ${c.fuel} ${c.trans}`.toLowerCase().includes(q));
-  if (matches.length === 0) {
-    dropdown.innerHTML = `<div class="search-empty">No cars found for "${this.value}"</div>`;
-  } else {
-    dropdown.innerHTML = matches.slice(0, 8).map(c => `
-      <div class="search-item" onclick="selectSearchItem(${c.id})">
-        <div>
-          <div class="search-item-name">${c.make} ${c.model}</div>
-          <div class="search-item-meta">${c.year} · ${c.fuel} · ${c.trans}</div>
-        </div>
-        <div class="search-item-price">${c.price}</div>
-      </div>
-    `).join('');
+    // Events
+    onSnapshot(collection(db, 'events'), snap => {
+      window._events = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderCal();
+      renderEvents();
+    });
   }
-  dropdown.classList.add('open');
-  searchQuery = q;
-  renderGrid();
-});
 
-function selectSearchItem(id) {
-  const car = CARS.find(c => c.id === id);
-  if (!car) return;
-  searchInput.value = `${car.make} ${car.model}`;
-  searchQuery = `${car.make} ${car.model}`.toLowerCase();
-  dropdown.classList.remove('open');
-  renderGrid();
-  openModal(id);
-}
+  window.sendMessage = async function() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    await addDoc(collection(db, 'messages'), { from: currentUser, text, timestamp: serverTimestamp() });
+  };
 
-function doSearch() {
-  searchQuery = searchInput.value.trim().toLowerCase();
-  dropdown.classList.remove('open');
-  renderGrid();
-}
+  window.addReminder = async function() {
+    const text = document.getElementById('rem-input').value.trim();
+    const from = document.getElementById('rem-from-sel').value;
+    if (!text) return;
+    document.getElementById('rem-input').value = '';
+    await addDoc(collection(db, 'reminders'), { from, text, timestamp: serverTimestamp() });
+  };
 
-searchInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') doSearch();
-  if (e.key === 'Escape') { dropdown.classList.remove('open'); }
-});
+  window.deleteReminder = async function(id) {
+    await deleteDoc(doc(db, 'reminders', id));
+  };
 
-document.addEventListener('click', e => {
-  if (!document.getElementById('searchBar').contains(e.target)) dropdown.classList.remove('open');
-});
+  window.addEvent = async function() {
+    const text = document.getElementById('ev-input').value.trim();
+    const from = document.getElementById('ev-who-sel').value;
+    if (!text) return;
+    document.getElementById('ev-input').value = '';
+    await addDoc(collection(db, 'events'), { text, from, date: dateKey(selectedDay) });
+    renderEvents();
+  };
 
-// init
-document.getElementById('totalCount').textContent = CARS.length + '+';
-renderGrid();
+  window.deleteEvent = async function(id) {
+    await deleteDoc(doc(db, 'events', id));
+  };
+
+  window.changeMonth = function(d) {
+    calDate = new Date(calDate.getFullYear(), calDate.getMonth() + d, 1);
+    renderCal();
+  };
+
+  window.selectDay = function(y, m, d) {
+    selectedDay = new Date(y, m, d);
+    renderCal();
+    renderEvents();
+  };
+
+  function renderCal() {
+    document.getElementById('cal-label').textContent = MONTHS[calDate.getMonth()] + ' ' + calDate.getFullYear();
+    const today = new Date();
+    const y = calDate.getFullYear(), mo = calDate.getMonth();
+    const first = new Date(y, mo, 1).getDay();
+    const daysInMonth = new Date(y, mo + 1, 0).getDate();
+    const prevDays = new Date(y, mo, 0).getDate();
+    const events = window._events || [];
+
+    let html = DAYS.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    for (let i = 0; i < first; i++) {
+      html += `<div class="cal-day other-month">${prevDays - first + 1 + i}</div>`;
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const k = y + '-' + (mo + 1) + '-' + d;
+      const isToday = today.getFullYear()===y && today.getMonth()===mo && today.getDate()===d;
+      const isSel = selectedDay.getFullYear()===y && selectedDay.getMonth()===mo && selectedDay.getDate()===d;
+      const hasEv = events.some(e => e.date === k);
+      const cls = ['cal-day', isToday?'today':'', isSel?'selected':'', hasEv?'has-event':''].filter(Boolean).join(' ');
+      html += `<div class="${cls}" onclick="selectDay(${y},${mo},${d})">${d}</div>`;
+    }
+    document.getElementById('cal-grid').innerHTML = html;
+    renderEvents();
+  }
+
+  function renderEvents() {
+    const events = window._events || [];
+    const k = dateKey(selectedDay);
+    const label = selectedDay.toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
+    document.getElementById('cal-events-title').textContent = 'Plans for ' + label;
+    const evs = events.filter(e => e.date === k);
+    const list = document.getElementById('events-list');
+    if (!evs.length) {
+      list.innerHTML = '<div class="empty-state" style="padding:1rem 0;font-size:13px;color:var(--muted);">Nothing planned yet — add something!</div>';
+      return;
+    }
+    list.innerHTML = evs.map(e => `<div class="ev-card">
+      <div class="ev-dot ${e.from==='Jay'?'ev-dot-j':'ev-dot-m'}"></div>
+      <div style="flex:1"><div class="ev-text">${e.text}</div><div class="ev-who">by ${e.from}</div></div>
+      <button class="ev-del" onclick="deleteEvent('${e.id}')">×</button>
+    </div>`).join('');
+  }
+
+  window._events = [];
+
+  // Enter to send
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMessage(); }
+  });
+  document.getElementById('pin-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.confirmPin();
+  });
 </script>
 </body>
 </html>
