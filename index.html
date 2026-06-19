@@ -166,6 +166,7 @@
     </div>
     <div class="login-title">Jay & Millie 💜</div>
     <div class="login-sub">our private little space</div>
+    <button id="install-btn" style="display:none;">Install App</button>
     <div class="login-btns">
       <button class="login-btn login-btn-j" onclick="selectUser('Jay')">I'm Jay</button>
       <button class="login-btn login-btn-m" onclick="selectUser('Millie')">I'm Millie</button>
@@ -497,6 +498,27 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   });
 }
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'inline-block';
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-btn').style.display = 'none';
+});
 </script>
 </body>
 </html>
