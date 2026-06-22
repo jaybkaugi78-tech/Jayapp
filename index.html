@@ -273,8 +273,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  // PINs — change these!
-  const PINS = { Jay: '2007', Millie: '2007' };
 
   let currentUser = null;
   let calDate = new Date();
@@ -304,24 +302,30 @@
     document.getElementById('pin-error').style.display = 'none';
   };
 
-  window.confirmPin = function() {
-    const entered = document.getElementById('pin-input').value;
-    if (entered === PINS[currentUser]) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      document.getElementById('logged-in-as').textContent = 'logged in as ' + currentUser;
-      document.getElementById('typing-as-name').textContent = currentUser;
-      const sendBtn = document.getElementById('chat-send-btn');
-      sendBtn.className = 'chat-send chat-send-' + (currentUser === 'Jay' ? 'j' : 'm');
-      document.getElementById('rem-from-sel').value = currentUser;
-      document.getElementById('ev-who-sel').value = currentUser;
-      startListeners();
-      renderCal();
-    } else {
-      document.getElementById('pin-error').style.display = 'block';
-      document.getElementById('pin-input').value = '';
-    }
-  };
+  window.confirmPin = async function() {
+  const entered = document.getElementById('pin-input').value;
+  const res = await fetch('/api/verify-pin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user: currentUser, pin: entered })
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('logged-in-as').textContent = 'logged in as ' + currentUser;
+    document.getElementById('typing-as-name').textContent = currentUser;
+    const sendBtn = document.getElementById('chat-send-btn');
+    sendBtn.className = 'chat-send chat-send-' + (currentUser === 'Jay' ? 'j' : 'm');
+    document.getElementById('rem-from-sel').value = currentUser;
+    document.getElementById('ev-who-sel').value = currentUser;
+    startListeners();
+    renderCal();
+  } else {
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('pin-input').value = '';
+  }
+};
 
   window.logout = function() {
     currentUser = null;
