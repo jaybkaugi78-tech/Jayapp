@@ -210,6 +210,8 @@
       <textarea id="chat-input" rows="2" placeholder="Type something..."></textarea>
       <div class="chat-input-footer">
         <div class="typing-as">Sending as <span id="typing-as-name">—</span></div>
+     <input type="file" id="media-input" accept="image/*,video/*" style="display:none">
+     <button class="chat-send" onclick="document.getElementById('media-input').click()">📎</button>
         <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">Send</button>
       </div>
     </div>
@@ -249,13 +251,13 @@
       <button onclick="addEvent()">+ Add</button>
     </div>
   </div>
-</div>
+</div> 
 
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
   // ==============================
   // 🔧 PASTE YUR FIREBASE CONFIG HER
   // ==============================
@@ -272,7 +274,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
+  const storage = getStorage(app);
   // PINs — change these!
   const PINS = { Jay: '2007', Millie: '2007' };
 
@@ -356,7 +358,13 @@
         return `<div class="msg-row ${isMe ? 'me' : ''}">
           <div class="${avCls}" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${m.from[0]}</div>
           <div>
-            <div class="${bubbleCls}">${m.text}</div>
+<div class="${bubbleCls}">
+  ${m.mediaUrl
+    ? m.mediaType === 'video'
+      ? `<video src="${m.mediaUrl}" controls style="max-width:200px;border-radius:8px;"></video>`
+      : `<img src="${m.mediaUrl}" style="max-width:200px;border-radius:8px;">`
+    : m.text}
+</div>
             <div class="msg-meta">${m.from} · ${fmtTime(m.timestamp)}</div>
           </div>
         </div>`;
@@ -402,7 +410,24 @@
     input.value = '';
     await addDoc(collection(db, 'messages'), { from: currentUser, text, timestamp: serverTimestamp() });
   };
+    window.sendMedia = async function(file) {
+  if (!file || !currentUser) return;
+  const fileRef = ref(storage, `media/${Date.now()}_${file.name}`);
+  await uploadBytes(fileRef, file);
+  const url = await getDownloadURL(fileRef);
+  const mediaType = file.type.startsWith('video') ? 'video' : 'image';
+  await addDoc(collection(db, 'messages'), {
+    from: currentUser,
+    text: '',
+    mediaUrl: url,
+    mediaType: mediaType,
+    timestamp: serverTimestamp()
+  });
+};
 
+document.getElementById('media-input').addEventListener('change', (e) => {
+  if (e.target.files[0]) sendMedia(e.target.files[0]);
+});
   window.addReminder = async function() {
     const text = document.getElementById('rem-input').value.trim();
     const from = document.getElementById('rem-from-sel').value;
