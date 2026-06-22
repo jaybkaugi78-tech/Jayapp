@@ -257,7 +257,6 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
   // ==============================
   // 🔧 PASTE YUR FIREBASE CONFIG HER
   // ==============================
@@ -274,7 +273,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const storage = getStorage(app);
   // PINs — change these!
   const PINS = { Jay: '2007', Millie: '2007' };
 
@@ -410,16 +408,24 @@
     input.value = '';
     await addDoc(collection(db, 'messages'), { from: currentUser, text, timestamp: serverTimestamp() });
   };
-    window.sendMedia = async function(file) {
+   window.sendMedia = async function(file) {
   if (!file || !currentUser) return;
-  const fileRef = ref(storage, `media/${Date.now()}_${file.name}`);
-  await uploadBytes(fileRef, file);
-  const url = await getDownloadURL(fileRef);
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'jaykaugi');
+  
+  const res = await fetch('https://api.cloudinary.com/v1_1/dpw1ypxiv/auto/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
   const mediaType = file.type.startsWith('video') ? 'video' : 'image';
+  
   await addDoc(collection(db, 'messages'), {
     from: currentUser,
     text: '',
-    mediaUrl: url,
+    mediaUrl: data.secure_url,
     mediaType: mediaType,
     timestamp: serverTimestamp()
   });
