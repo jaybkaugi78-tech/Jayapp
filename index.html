@@ -385,7 +385,7 @@ onSnapshot(msgsQ, snap => {
     box.scrollTop = box.scrollHeight;
   }, 500);
 });
-});
+};
 
 window.loadOlderMessages = async function() {
   if (!oldestDoc) return;
@@ -460,7 +460,7 @@ function renderMessages(messages, scrollToBottom = true) {
       renderCal();
       renderEvents();
     });
-  }
+  
 
   window.sendMessage = async function() {
   const input = document.getElementById('chat-input');
