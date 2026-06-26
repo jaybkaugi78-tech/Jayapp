@@ -387,7 +387,11 @@
           </div>
         </div>`;
       }).join('');
-      setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
+      requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    box.scrollTop = box.scrollHeight;
+  });
+});
     });
 
     // Reminders
