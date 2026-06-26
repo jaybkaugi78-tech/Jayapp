@@ -380,10 +380,6 @@ onSnapshot(msgsQ, snap => {
   }
   allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderMessages(allMessages);
-  setTimeout(() => {
-    const box = document.getElementById('chat-msgs');
-    box.scrollTop = box.scrollHeight;
-  }, 500);
 });
 };
 
@@ -400,7 +396,7 @@ window.loadOlderMessages = async function() {
   allMessages = [...olderMessages, ...allMessages];
   const box = document.getElementById('chat-msgs');
   const prevHeight = box.scrollHeight;
-  renderMessages(allMessages, false);
+  renderMessages(allMessages);
   box.scrollTop = box.scrollHeight - prevHeight;
   if (snap.docs.length < 50) document.getElementById('load-older-btn').style.display = 'none';
 };
