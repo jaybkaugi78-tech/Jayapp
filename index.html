@@ -203,9 +203,12 @@
 
   <!-- CHAT -->
   <div id="tab-chat" class="tab-content active">
-    <div class="chat-msgs" id="chat-msgs">
-      <div class="loading">Loading messages...</div>
-    </div>
+  <div id="load-older-btn" style="display:none; text-align:center; padding:8px;">
+    <button onclick="loadOlderMessages()" style="background:none; border:1px solid #ccc; border-radius:20px; padding:6px 16px; cursor:pointer; font-size:13px;">Load older messages</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="loading">Loading messages...</div>
+  </div>
     <div class="chat-input-area">
       <textarea id="chat-input" rows="2" placeholder="Type something..."></textarea>
       <div class="chat-input-footer">
@@ -256,7 +259,7 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp, setDoc, limitToLast, getDocs, limit, endBefore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
   const firebaseConfig = {
@@ -360,39 +363,65 @@
   };
 
   function startListeners() {
-    // Messages
-    const msgsQ = query(collection(db, 'messages'), orderBy('timestamp', 'asc'));
-    onSnapshot(msgsQ, snap => {
-      const box = document.getElementById('chat-msgs');
-      if (snap.empty) {
-        box.innerHTML = '<div class="empty-state">No messages yet — say something! 💜</div>';
-        return;
-      }
-      box.innerHTML = snap.docs.map(d => {
-        const m = d.data();
-        const isMe = m.from === currentUser;
-        const bubbleCls = m.from === 'Jay' ? 'bubble bubble-j' : 'bubble bubble-m';
-        const avCls = m.from === 'Jay' ? 'msg-av-sm h-av-j' : 'msg-av-sm h-av-m';
-        return `<div class="msg-row ${isMe ? 'me' : ''}">
-          <div class="${avCls}" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${m.from[0]}</div>
-          <div>
-<div class="${bubbleCls}">
-  ${m.mediaUrl
-    ? m.mediaType === 'video'
-      ? `<video src="${m.mediaUrl}" controls style="max-width:200px;border-radius:8px;"></video>`
-      : `<img src="${m.mediaUrl}" style="max-width:200px;border-radius:8px;">`
-    : m.text}
-</div>
-            <div class="msg-meta">${m.from} · ${fmtTime(m.timestamp)}</div>
-          </div>
-        </div>`;
-      }).join('');
-      requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    box.scrollTop = box.scrollHeight;
-  });
+   // Messages
+let oldestDoc = null;
+let allMessages = [];
+
+const msgsQ = query(collection(db, 'messages'), orderBy('timestamp', 'asc'), limitToLast(50));
+onSnapshot(msgsQ, snap => {
+  const box = document.getElementById('chat-msgs');
+  if (snap.empty) {
+    box.innerHTML = '<div class="empty-state">No messages yet — say something! 💜</div>';
+    return;
+  }
+  if (!oldestDoc) {
+    oldestDoc = snap.docs[0];
+    document.getElementById('load-older-btn').style.display = 'block';
+  }
+  allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderMessages(allMessages);
 });
-    });
+
+window.loadOlderMessages = async function() {
+  if (!oldestDoc) return;
+  const olderQ = query(collection(db, 'messages'), orderBy('timestamp', 'asc'), endBefore(oldestDoc), limitToLast(50));
+  const snap = await getDocs(olderQ);
+  if (snap.empty) {
+    document.getElementById('load-older-btn').style.display = 'none';
+    return;
+  }
+  oldestDoc = snap.docs[0];
+  const olderMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  allMessages = [...olderMessages, ...allMessages];
+  const box = document.getElementById('chat-msgs');
+  const prevHeight = box.scrollHeight;
+  renderMessages(allMessages, false);
+  box.scrollTop = box.scrollHeight - prevHeight;
+  if (snap.docs.length < 50) document.getElementById('load-older-btn').style.display = 'none';
+};
+
+function renderMessages(messages, scrollToBottom = true) {
+  const box = document.getElementById('chat-msgs');
+  box.innerHTML = messages.map(m => {
+    const isMe = m.from === currentUser;
+    const bubbleCls = m.from === 'Jay' ? 'bubble bubble-j' : 'bubble bubble-m';
+    const avCls = m.from === 'Jay' ? 'msg-av-sm h-av-j' : 'msg-av-sm h-av-m';
+    return `<div class="msg-row ${isMe ? 'me' : ''}">
+      <div class="${avCls}" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <div>
+          <div class="${bubbleCls}">
+            ${m.mediaUrl ? m.mediaType === 'video'
+              ? `<video src="${m.mediaUrl}" controls style="max-width:200px;border-radius:8px;"></video>`
+              : `<img src="${m.mediaUrl}" style="max-width:200px;border-radius:8px;">`
+              : m.text}
+          </div>
+          <div class="msg-meta">${m.from} · ${fmtTime(m.timestamp)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  if (scrollToBottom) setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
+}
 
     // Reminders
     const remsQ = query(collection(db, 'reminders'), orderBy('timestamp', 'desc'));
