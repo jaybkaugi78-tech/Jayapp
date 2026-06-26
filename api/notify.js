@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
     const auth = new GoogleAuth({
       credentials: {
         client_email: process.env.FIREBASE_CLIENT_EMAIL,
-        private_key: process.env.FIREBASE_PRIVATE_KEY,
+        private_key: process.env.FIREBASE_PRIVATE_KEY?.split('\\n').join('\n'),
       },
       scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
     });
