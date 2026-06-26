@@ -380,6 +380,11 @@ onSnapshot(msgsQ, snap => {
   }
   allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderMessages(allMessages);
+  setTimeout(() => {
+    const box = document.getElementById('chat-msgs');
+    box.scrollTop = box.scrollHeight;
+  }, 500);
+});
 });
 
 window.loadOlderMessages = async function() {
@@ -419,7 +424,11 @@ function renderMessages(messages, scrollToBottom = true) {
       </div>
     </div>`;
   }).join('');
-  if (scrollToBottom) setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
+  if (scrollToBottom) {
+  setTimeout(() => { 
+    box.scrollTop = box.scrollHeight; 
+  }, 300);
+}
 }
 
     // Reminders
