@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     const { token } = tokenDoc.data();
     await admin.messaging().send({
       token,
-      notification: {
+      data: {
         title: `${from} 💜`,
         body: message || 'Sent you something'
       }
