@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#000000">
@@ -387,7 +387,7 @@
           </div>
         </div>`;
       }).join('');
-      box.scrollTop = box.scrollHeight;
+      setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
     });
 
     // Reminders
@@ -420,7 +420,7 @@
       renderEvents();
     });
   }
-  
+
   window.sendMessage = async function() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
