@@ -256,10 +256,9 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  // ==============================
-  // 🔧 PASTE YUR FIREBASE CONFIG HER
-  // ==============================
+  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyDig5IqgBD1vj8godQYd5bzMErESkePCwI",
   authDomain: "jay-and-millie.firebaseapp.com",
@@ -273,7 +272,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
+  const messaging = getMessaging(app);
   let currentUser = null;
   let calDate = new Date();
   let selectedDay = new Date();
@@ -319,12 +318,29 @@
     sendBtn.className = 'chat-send chat-send-' + (currentUser === 'Jay' ? 'j' : 'm');
     document.getElementById('rem-from-sel').value = currentUser;
     document.getElementById('ev-who-sel').value = currentUser;
+    setupNotifications();
     startListeners();
     renderCal();
   } else {
     document.getElementById('pin-error').style.display = 'block';
     document.getElementById('pin-input').value = '';
   }
+  async function setupNotifications() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const registration = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, {
+      vapidKey: 'BOU94obBxIxszMHiFOulYexORLu7-aVb8N-V-HqbXLlNJR-cP_nR0U9MkAw-LS0z2Em8DbhfEZrS9UP-DkJda90',
+      serviceWorkerRegistration: registration
+    });
+    if (token) {
+      await setDoc(doc(db, 'tokens', currentUser), { token, updatedAt: serverTimestamp() });
+    }
+  } catch (err) {
+    console.error('Notification setup failed:', err);
+  }
+}
 };
 
   window.logout = function() {
@@ -404,14 +420,21 @@
       renderEvents();
     });
   }
-
+  
   window.sendMessage = async function() {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = '';
-    await addDoc(collection(db, 'messages'), { from: currentUser, text, timestamp: serverTimestamp() });
-  };
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await addDoc(collection(db, 'messages'), { from: currentUser, text, timestamp: serverTimestamp() });
+  const other = currentUser === 'Jay' ? 'Millie' : 'Jay';
+  await fetch('/api/notify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: other, from: currentUser, message: text })
+  });
+};
+
    window.sendMedia = async function(file) {
   if (!file || !currentUser) return;
   
