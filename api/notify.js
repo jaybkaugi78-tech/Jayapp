@@ -9,8 +9,11 @@ module.exports = async function handler(req, res) {
         client_email: process.env.FIREBASE_CLIENT_EMAIL,
         private_key: process.env.FIREBASE_PRIVATE_KEY?.split('\\n').join('\n'),
       },
-      scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
-    });
+  scopes: [
+   'https://www.googleapis.com/auth/firebase.messaging',
+   'https://www.googleapis.com/auth/datastore'
+], 
+});
 
     const client = await auth.getClient();
     const tokenResponse = await client.getAccessToken();
