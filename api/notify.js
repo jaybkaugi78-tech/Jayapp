@@ -22,10 +22,9 @@ module.exports = async function handler(req, res) {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
-    if (!firestoreRes.ok) return res.status(200).json({ sent: false, reason: 'no token' });
     if (!firestoreRes.ok) {
-  const errText = await firestoreRes.text();
-  return res.status(200).json({ sent: false, reason: 'no token', status: firestoreRes.status, error: errText });
+      const errText = await firestoreRes.text();
+      return res.status(200).json({ sent: false, reason: 'no token', status: firestoreRes.status, error: errText });
 }
     const firestoreData = await firestoreRes.json();
     console.log('Firestore data:', JSON.stringify(firestoreData));
