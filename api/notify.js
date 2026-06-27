@@ -28,7 +28,6 @@ module.exports = async function handler(req, res) {
     if (!firestoreRes.ok) return res.status(200).json({ sent: false, reason: 'no token' });
     
     const firestoreData = await firestoreRes.json();
-    const firestoreData = await firestoreRes.json();
     console.log('Status:', firestoreRes.status);
     console.log('Firestore data:', JSON.stringify(firestoreData));
     console.log('Fields:', JSON.stringify(firestoreData.fields));
