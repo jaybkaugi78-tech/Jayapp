@@ -583,7 +583,7 @@ document.getElementById('media-input').addEventListener('change', (e) => {
     document.getElementById('cal-grid').innerHTML = html;
     renderEvents();
   }
-  function toggleTheme() {
+  window.toggleTheme = function() {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙';
