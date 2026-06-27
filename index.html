@@ -461,11 +461,16 @@ function renderMessages(messages) {
   input.value = '';
   await addDoc(collection(db, 'messages'), { from: currentUser, text, timestamp: serverTimestamp() });
   const other = currentUser === 'Jay' ? 'Millie' : 'Jay';
-  await fetch('/api/notify', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ to: other, from: currentUser, message: text })
-});
+  try {
+  const res = await fetch('/api/notify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: other, from: currentUser, message: text })
+  });
+  if (!res.ok) console.error('Notify failed:', res.status);
+} catch (err) {
+  console.error('Notify error:', err);
+};
 };
 
    window.sendMedia = async function(file) {
