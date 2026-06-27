@@ -28,8 +28,9 @@ module.exports = async function handler(req, res) {
     if (!firestoreRes.ok) return res.status(200).json({ sent: false, reason: 'no token' });
     
     const firestoreData = await firestoreRes.json();
+    console.log('Firestore data:', JSON.stringify(firestoreData));
     const token = firestoreData.fields?.token?.stringValue;
-    
+    console.log('Token found:', token ? 'yes' : 'no');    
     if (!token) return res.status(200).json({ sent: false, reason: 'no token value' });
 
     // Send FCM notification
