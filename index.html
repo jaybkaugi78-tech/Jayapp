@@ -362,11 +362,10 @@
     if (name === 'calendar') renderCal();
   };
 
-  function startListeners() {
-   // Messages
 let oldestDoc = null;
 let allMessages = [];
-
+function startListeners() {
+  // Messages
 const msgsQ = query(collection(db, 'messages'), orderBy('timestamp', 'asc'), limitToLast(50));
 onSnapshot(msgsQ, snap => {
   const box = document.getElementById('chat-msgs');
