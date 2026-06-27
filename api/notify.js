@@ -18,13 +18,15 @@ module.exports = async function handler(req, res) {
 
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/tokens/${to}`;
-    
     const firestoreRes = await fetch(firestoreUrl, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
     if (!firestoreRes.ok) return res.status(200).json({ sent: false, reason: 'no token' });
-
+    if (!firestoreRes.ok) {
+  const errText = await firestoreRes.text();
+  return res.status(200).json({ sent: false, reason: 'no token', status: firestoreRes.status, error: errText });
+}
     const firestoreData = await firestoreRes.json();
     console.log('Firestore data:', JSON.stringify(firestoreData));
     const fcmToken = firestoreData.fields?.token?.stringValue;
