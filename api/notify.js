@@ -3,7 +3,6 @@ module.exports = async function handler(req, res) {
   const { to, from, message } = req.body;
 
   try {
-    // Get access token using service account
     const { GoogleAuth } = require('google-auth-library');
     const auth = new GoogleAuth({
       credentials: {
@@ -17,28 +16,22 @@ module.exports = async function handler(req, res) {
     const tokenResponse = await client.getAccessToken();
     const accessToken = tokenResponse.token;
 
-    // Get FCM token from Firestore REST API
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/tokens/${to}`;
     
     const firestoreRes = await fetch(firestoreUrl, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-    
-    if (!firestoreRes.ok) return res.status(200).json({ sent: false, reason: 'no token' });
-    
-    const firestoreData = await firestoreRes.json();
-    console.log('Status:', firestoreRes.status);
-    console.log('Firestore data:', JSON.stringify(firestoreData));
-    console.log('Fields:', JSON.stringify(firestoreData.fields));
-    const token = firestoreData.fields?.token?.stringValue;
-    console.log('Token found:', token ? 'yes' : 'no');
-    console.log('Firestore data:', JSON.stringify(firestoreData));
-    const token = firestoreData.fields?.token?.stringValue;
-    console.log('Token found:', token ? 'yes' : 'no');    
-    if (!token) return res.status(200).json({ sent: false, reason: 'no token value' });
 
-    // Send FCM notification
+    if (!firestoreRes.ok) return res.status(200).json({ sent: false, reason: 'no token' });
+
+    const firestoreData = await firestoreRes.json();
+    console.log('Firestore data:', JSON.stringify(firestoreData));
+    const fcmToken = firestoreData.fields?.token?.stringValue;
+    console.log('FCM token found:', fcmToken ? 'yes' : 'no');
+
+    if (!fcmToken) return res.status(200).json({ sent: false, reason: 'no token value' });
+
     const fcmRes = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
       method: 'POST',
       headers: {
@@ -47,7 +40,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         message: {
-          token,
+          token: fcmToken,
           data: {
             title: `${from} 💜`,
             body: message || 'Sent you something'
@@ -57,6 +50,7 @@ module.exports = async function handler(req, res) {
     });
 
     const fcmData = await fcmRes.json();
+    console.log('FCM response:', JSON.stringify(fcmData));
     res.status(200).json({ sent: true, fcm: fcmData });
   } catch (err) {
     console.error(err);
