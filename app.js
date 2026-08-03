@@ -204,7 +204,7 @@ window.deleteMessage = async function(id) {
     // Game
     onSnapshot(doc(db, 'game', 'tictactoe'), snap => {
       if (!snap.exists()) {
-        setDoc(doc(db, 'game', 'tictactoe'), freshGameState());
+        setDoc(doc(db, 'game', 'tictactoe'), freshGameState('Jay'));
         return;
       }
       window._game = snap.data();
@@ -363,8 +363,8 @@ updateThemeButton();
     [0,4,8],[2,4,6]
   ];
 
-  function freshGameState() {
-    return { board: Array(9).fill(null), turn: 'Jay', winner: null, winLine: null };
+  function freshGameState(starter) {
+    return { board: Array(9).fill(null), turn: starter, starter, winner: null, winLine: null };
   }
 
   function findWinner(board) {
@@ -396,7 +396,9 @@ updateThemeButton();
   };
 
   window.resetGame = async function() {
-    await setDoc(doc(db, 'game', 'tictactoe'), freshGameState());
+    const prevStarter = (window._game && window._game.starter) || 'Jay';
+    const nextStarter = prevStarter === 'Jay' ? 'Millie' : 'Jay';
+    await setDoc(doc(db, 'game', 'tictactoe'), freshGameState(nextStarter));
   };
 
   function renderGame() {
