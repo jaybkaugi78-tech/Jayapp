@@ -831,6 +831,84 @@
 
   .ttt-reset:hover { border-color: var(--border-strong); background: var(--card-raised); }
 
+  .game-chat {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .game-chat-msgs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 2px;
+  }
+
+  .gc-row { display: flex; }
+  .gc-row.me { justify-content: flex-end; }
+
+  .gc-bubble {
+    max-width: 78%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .gc-bubble-j {
+    margin-left: auto;
+    background: linear-gradient(180deg, rgba(141, 92, 255, 0.24), rgba(73, 36, 134, 0.28));
+    border-color: rgba(181, 134, 255, 0.2);
+    border-bottom-right-radius: 4px;
+  }
+
+  .gc-bubble-m {
+    background: linear-gradient(180deg, rgba(255, 125, 182, 0.18), rgba(120, 38, 84, 0.22));
+    border-color: rgba(255, 145, 195, 0.18);
+    border-bottom-left-radius: 4px;
+  }
+
+  .gc-meta { font-size: 10px; color: var(--muted-strong); margin-top: 3px; }
+  .gc-row.me .gc-meta { text-align: right; }
+
+  .game-chat-input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .game-chat-input-row input {
+    flex: 1;
+    min-width: 0;
+    min-height: 38px;
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--control);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+  }
+
+  .game-chat-input-row input:focus { border-color: var(--border-strong); }
+
+  .game-chat-send {
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    border: none;
+    color: #100817;
+    font-size: 13px;
+    font-weight: 800;
+    transition: transform 0.18s, filter 0.18s;
+  }
+
+  .game-chat-send:hover { transform: translateY(-1px); filter: brightness(1.04); }
+
   .loading { text-align: center; padding: 34px 16px; color: var(--muted); font-size: 13px; }
   .online-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--success); }
   .online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }

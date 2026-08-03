@@ -59,6 +59,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     document.getElementById('typing-as-name').textContent = currentUser;
     const sendBtn = document.getElementById('chat-send-btn');
     sendBtn.className = 'chat-send chat-send-' + (currentUser === 'Jay' ? 'j' : 'm');
+    const gcSendBtn = document.getElementById('game-chat-send-btn');
+    gcSendBtn.className = 'game-chat-send chat-send-' + (currentUser === 'Jay' ? 'j' : 'm');
     document.getElementById('rem-from-sel').value = currentUser;
     document.getElementById('ev-who-sel').value = currentUser;
     setupNotifications();
@@ -209,6 +211,13 @@ window.deleteMessage = async function(id) {
       }
       window._game = snap.data();
       renderGame();
+    });
+
+    // Game chat
+    const gameChatQ = query(collection(db, 'game_chat'), orderBy('timestamp', 'asc'), limitToLast(50));
+    onSnapshot(gameChatQ, snap => {
+      window._gameChat = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderGameChat();
     });
   
 
@@ -430,9 +439,44 @@ updateThemeButton();
 
   window._game = null;
 
+  // ===== GAME CHAT =====
+  window._gameChat = [];
+
+  window.sendGameChat = async function() {
+    const input = document.getElementById('game-chat-input');
+    const text = input.value.trim();
+    if (!text || !currentUser) return;
+    input.value = '';
+    await addDoc(collection(db, 'game_chat'), { from: currentUser, text, timestamp: serverTimestamp() });
+  };
+
+  function renderGameChat() {
+    const box = document.getElementById('game-chat-msgs');
+    if (!box) return;
+    const messages = window._gameChat || [];
+    if (!messages.length) {
+      box.innerHTML = '<div class="empty-state compact">No messages yet. Say hi.</div>';
+      return;
+    }
+    box.innerHTML = messages.map(m => {
+      const isMe = m.from === currentUser;
+      const bubbleCls = m.from === 'Jay' ? 'gc-bubble gc-bubble-j' : 'gc-bubble gc-bubble-m';
+      return `<div class="gc-row ${isMe ? 'me' : ''}">
+        <div>
+          <div class="${bubbleCls}">${m.text}</div>
+          <div class="gc-meta">${m.from} &middot; ${fmtTime(m.timestamp)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+
   // Enter to send
   document.getElementById('chat-input').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMessage(); }
+  });
+  document.getElementById('game-chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); window.sendGameChat(); }
   });
   document.getElementById('pin-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') window.confirmPin();

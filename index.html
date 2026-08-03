@@ -121,6 +121,16 @@
     <div class="game-status" id="game-status">Loading game...</div>
     <div class="ttt-grid" id="ttt-grid"></div>
     <button class="ttt-reset" onclick="resetGame()">New game</button>
+
+    <div class="game-chat" id="game-chat">
+      <div class="game-chat-msgs" id="game-chat-msgs">
+        <div class="empty-state compact">No messages yet. Say hi.</div>
+      </div>
+      <div class="game-chat-input-row">
+        <input type="text" id="game-chat-input" placeholder="Say something...">
+        <button class="game-chat-send" id="game-chat-send-btn" onclick="sendGameChat()">Send</button>
+      </div>
+    </div>
   </div>
 </div> 
 
