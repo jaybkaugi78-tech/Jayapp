@@ -13,7 +13,6 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDocs,
   onSnapshot,
   serverTimestamp,
   updateDoc,
@@ -57,8 +56,10 @@ export default function App() {
     ) || ""
   );
 
-  const [tab, setTab] =
-    useState("chat");
+  const [
+    tab,
+    setTab,
+  ] = useState("chat");
 
   const [
     menuOpen,
@@ -108,6 +109,7 @@ export default function App() {
             );
 
             setPerson("");
+
             setNotifications(
               []
             );
@@ -171,9 +173,6 @@ export default function App() {
                   ...item.data(),
                 })
               )
-
-              // Only show notifications
-              // intended for this person.
               .filter(
                 (item) =>
                   item.to ===
@@ -236,20 +235,6 @@ export default function App() {
         return;
       }
 
-      /*
-        If Chat currently calls:
-
-        addNotification({
-          title: "...",
-          text: "..."
-        })
-
-        there is no "to" yet.
-
-        In that case automatically
-        send it to the other person.
-      */
-
       const recipient =
         to ||
         (person === "Jay"
@@ -257,6 +242,10 @@ export default function App() {
           : "Jay");
 
       try {
+        // ------------------------
+        // IN-APP NOTIFICATION
+        // ------------------------
+
         await addDoc(
           collection(
             db,
@@ -282,6 +271,70 @@ export default function App() {
               serverTimestamp(),
           }
         );
+
+        // ------------------------
+        // PHONE PUSH NOTIFICATION
+        // ------------------------
+
+        const idToken =
+          await auth.currentUser
+            .getIdToken();
+
+        const response =
+          await fetch(
+            "/api/send-push",
+            {
+              method:
+                "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Authorization:
+                  `Bearer ${idToken}`,
+              },
+
+              body:
+                JSON.stringify({
+                  to:
+                    recipient,
+
+                  title:
+                    title ||
+                    `New message from ${person}`,
+
+                  text:
+                    text ||
+                    "You have a new message.",
+                }),
+            }
+          );
+
+        let data = {};
+
+        try {
+          data =
+            await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (
+          !response.ok
+        ) {
+          console.error(
+            "Push API error:",
+            data
+          );
+
+          return;
+        }
+
+        console.log(
+          "Push result:",
+          data
+        );
       } catch (err) {
         console.error(
           "Add notification error:",
@@ -303,7 +356,8 @@ export default function App() {
         );
 
       if (
-        unread.length === 0
+        unread.length ===
+        0
       ) {
         return;
       }
@@ -319,7 +373,8 @@ export default function App() {
                   item.id
                 ),
                 {
-                  read: true,
+                  read:
+                    true,
                 }
               )
           )
@@ -350,7 +405,9 @@ export default function App() {
           "Clear all notifications?"
         );
 
-      if (!confirmed) {
+      if (
+        !confirmed
+      ) {
         return;
       }
 
@@ -407,13 +464,19 @@ export default function App() {
       );
 
       setPerson("");
-      setMenuOpen(false);
+
+      setMenuOpen(
+        false
+      );
+
       setSettingsOpen(
         false
       );
+
       setNotificationsOpen(
         false
       );
+
       setNotifications(
         []
       );
@@ -423,7 +486,9 @@ export default function App() {
   // LOADING
   // ============================
 
-  if (authLoading) {
+  if (
+    authLoading
+  ) {
     return (
       <main className="login-page">
         <div className="login-card">
@@ -464,7 +529,9 @@ export default function App() {
     <div className="shell">
       <div className="frame">
         <Header
-          person={person}
+          person={
+            person
+          }
           notificationCount={
             unreadCount
           }
@@ -527,8 +594,12 @@ export default function App() {
         </main>
 
         <BottomNav
-          tab={tab}
-          setTab={setTab}
+          tab={
+            tab
+          }
+          setTab={
+            setTab
+          }
         />
       </div>
 

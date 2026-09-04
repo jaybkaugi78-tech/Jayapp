@@ -14,6 +14,11 @@ import {
   getStorage,
 } from "firebase/storage";
 
+import {
+  getMessaging,
+  isSupported,
+} from "firebase/messaging";
+
 const firebaseConfig = {
   apiKey:
     import.meta.env
@@ -53,3 +58,19 @@ export const db =
 
 export const storage =
   getStorage(app);
+
+export const getFirebaseMessaging =
+  async () => {
+    const supported =
+      await isSupported();
+
+    if (!supported) {
+      console.warn(
+        "Firebase Messaging is not supported on this browser."
+      );
+
+      return null;
+    }
+
+    return getMessaging(app);
+  };
