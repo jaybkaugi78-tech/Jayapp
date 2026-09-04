@@ -1,139 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#08040d">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jay & Millie</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-avatars">
-      <div class="login-av login-av-j">J</div>
-      <div class="login-av login-av-m">M</div>
-    </div>
-    <div class="login-title">Jay & Millie</div>
-    <div class="login-sub">Private space for two</div>
-    <button id="install-btn">Install app</button>
-    <div class="login-btns">
-      <button class="login-btn login-btn-j" onclick="selectUser('Jay')">Continue as Jay</button>
-      <button class="login-btn login-btn-m" onclick="selectUser('Millie')">Continue as Millie</button>
-    </div>
-    <div class="pin-row" id="pin-row">
-      <input type="password" id="pin-input" maxlength="4" placeholder="Enter PIN" inputmode="numeric">
-      <button class="pin-confirm" id="pin-confirm-btn" onclick="confirmPin()">Enter</button>
-      <div class="pin-error" id="pin-error">Wrong PIN. Try again.</div>
-    </div>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app">
-  <div class="app-header">
-    <div class="header-left">
-      <div class="h-avatars">
-        <div class="h-av h-av-j">J</div>
-        <div class="h-av h-av-m">M</div>
-      </div>
-      <div>
-        <div class="h-title">Jay & Millie</div>
-        <div class="h-sub" id="logged-in-as">signed in</div>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button id="theme-btn" class="logout-btn" onclick="toggleTheme()">Light</button>
-      <button class="logout-btn" onclick="logout()">Leave</button>
-    </div>
-  </div>
-
-  <div class="tabs-bar">
-    <button class="tab-btn active" onclick="switchTab('chat', this)">Messages</button>
-    <button class="tab-btn" onclick="switchTab('reminders', this)">Reminders</button>
-    <button class="tab-btn" onclick="switchTab('calendar', this)">Planner</button>
-    <button class="tab-btn" onclick="switchTab('game', this)">Game</button>
-  </div>
-
-  <!-- CHAT -->
-  <div id="tab-chat" class="tab-content active">
-  <div id="load-older-btn" class="load-older">
-    <button onclick="loadOlderMessages()">Load older messages</button>
-  </div>
-  <div class="chat-msgs" id="chat-msgs">
-    <div class="loading">Loading messages...</div>
-  </div>
-    <div class="chat-input-area">
-      <textarea id="chat-input" rows="2" placeholder="Write a message..."></textarea>
-      <div class="chat-input-footer">
-        <div class="typing-as">Sending as <span id="typing-as-name">-</span></div>
-        <div class="chat-actions">
-          <input type="file" id="media-input" accept="image/*,video/*" style="display:none">
-          <button class="chat-send attach-btn" title="Attach media" aria-label="Attach media" onclick="document.getElementById('media-input').click()">+</button>
-          <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">Send</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- REMINDERS -->
-  <div id="tab-reminders" class="tab-content">
-    <div id="rem-list"><div class="loading">Loading reminders...</div></div>
-    <div class="add-box">
-      <textarea id="rem-input" rows="2" placeholder="Leave a reminder or sweet note..."></textarea>
-      <div class="add-box-footer">
-        <select id="rem-from-sel">
-          <option value="Jay">From Jay</option>
-          <option value="Millie">From Millie</option>
-        </select>
-        <button class="add-box-btn" onclick="addReminder()">Add</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CALENDAR -->
-  <div id="tab-calendar" class="tab-content">
-    <div class="cal-header">
-      <button class="cal-nav-btn" onclick="changeMonth(-1)">&#8249;</button>
-      <div class="cal-month-label" id="cal-label"></div>
-      <button class="cal-nav-btn" onclick="changeMonth(1)">&#8250;</button>
-    </div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div class="cal-events-title" id="cal-events-title">Plans</div>
-    <div id="events-list"></div>
-    <div class="add-ev-row">
-      <input type="text" id="ev-input" placeholder="Add a plan...">
-      <select id="ev-who-sel">
-        <option value="Jay">Jay</option>
-        <option value="Millie">Millie</option>
-      </select>
-      <button onclick="addEvent()">Add</button>
-    </div>
-  </div>
-
-  <!-- GAME -->
-  <div id="tab-game" class="tab-content">
-    <div class="game-status" id="game-status">Loading game...</div>
-    <div class="ttt-grid" id="ttt-grid"></div>
-    <button class="ttt-reset" onclick="resetGame()">New game</button>
-
-    <div class="game-chat" id="game-chat">
-      <div class="game-chat-msgs" id="game-chat-msgs">
-        <div class="empty-state compact">No messages yet. Say hi.</div>
-      </div>
-      <div class="game-chat-input-row">
-        <input type="text" id="game-chat-input" placeholder="Say something...">
-        <button class="game-chat-send" id="game-chat-send-btn" onclick="sendGameChat()">Send</button>
-      </div>
-    </div>
-  </div>
-</div> 
-
-<script type="module" src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0D0B10" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <title>Jay & Millie</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
